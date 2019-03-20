@@ -1,0 +1,5 @@
+# Which interfaces are to be considered external?
+router_external_interfaces: []
+
+router_k8s_worker_group: "kube-worker"
+router_k8s_bgp_as: "64512"

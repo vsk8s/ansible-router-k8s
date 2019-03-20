@@ -1,0 +1,26 @@
+---
+  - name: Install needed software
+    become: True
+    apt:
+      name:
+        - bird
+      state: present
+      update_cache: True
+      cache_valid_time: 1800
+
+  - name: Ensure that bird6 is stopped
+    become: True
+    service:
+      name: bird6
+      state: stopped
+      enabled: no
+
+  - name: Configure bird
+    become: True
+    template:
+      src: bird.conf.j2
+      dest: /etc/bird/bird.conf
+      owner: root
+      group: root
+      mode: 0644
+    notify: restart bird
