@@ -9,6 +9,11 @@
 # of your router, usually one of router's IPv4 addresses.
 router id {{ ansible_default_ipv4.address }};
 
+filter no_default_route {
+        if net = 0.0.0.0/0 then reject;
+        else accept;
+}
+
 # The Device protocol is not a real routing protocol. It doesn't generate any
 # routes and it only serves as a module for getting information about network
 # interfaces from the kernel.
@@ -19,21 +24,30 @@ protocol device {
 # with other routers in the network, it performs synchronization of BIRD's
 # routing tables with the OS kernel.
 protocol kernel {
-	metric 64;	# Use explicit kernel route metric to avoid collisions
-			# with non-BIRD routes in the kernel routing table
-	import all;     # Including default route
-	export all;	# Actually insert routes into the kernel routing table
+        metric 64;      # Use explicit kernel route metric to avoid collisions
+                        # with non-BIRD routes in the kernel routing table
+        import all;     # Including default route
+        export all;     # Actually insert routes into the kernel routing table
+        export filter no_default_route;
+        merge paths yes;
+        persist;
 }
+
+# Advertise self as default route
+protocol static {
+        route 0.0.0.0/0 via {{ hostvars[inventory_hostname][router_k8s_internal_inteface]['ipv4']['address'] }};
+}
+
 {% for item in groups[router_k8s_worker_group] %}
 
 protocol bgp {{ hostvars[item]['ansible_nodename']|regex_replace('-','_') }} {
-	description "{{ hostvars[item]['ansible_default_ipv4']['address'] }}";
-	local as {{ router_k8s_bgp_as }};
-	neighbor {{ hostvars[item]['ansible_default_ipv4']['address'] }} as {{ router_k8s_bgp_as }};
-	graceful restart;
-	import all;
-	export all;
-	direct;
-	gateway direct;
+        description "{{ hostvars[item]['ansible_default_ipv4']['address'] }}";
+        local as {{ router_k8s_bgp_as }};
+        neighbor {{ hostvars[item]['ansible_default_ipv4']['address'] }} as {{ router_k8s_bgp_as }};
+        graceful restart;
+        import all;
+        export all;
+        direct;
+        gateway direct;
 }
 {% endfor %}
