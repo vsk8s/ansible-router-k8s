@@ -2,7 +2,12 @@
 router_external_interfaces: []
 
 router_k8s_worker_group: "kube-worker"
+# remote router groups
+router_k8s_other_routers:
+  - "remote-group"
 router_k8s_bgp_as: "64512"
 router_k8s_internal_inteface: ansible_eth1
 
 kubernetes_ha_ip_intern: 10.0.0.3
+kubernetes_cluster_cidr: 10.0.0.0/8
+kubernetes_service_cidr: 10.0.0.0/8

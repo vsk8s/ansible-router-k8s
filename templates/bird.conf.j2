@@ -53,3 +53,23 @@ protocol bgp {{ hostvars[item]['ansible_nodename']|regex_replace('-','_') }} {
         gateway direct;
 }
 {% endfor %}
+
+{% for remote_group in router_k8s_other_routers %}
+{% for item in groups[remote_group] %}
+
+protocol bgp {{ hostvars[item]['ansible_nodename']|regex_replace('-','_') }} {
+        description "{{ hostvars[item]['ansible_default_ipv4']['address'] }}";
+        local as {{ router_k8s_bgp_as }};
+        neighbor {{ hostvars[item]['ansible_default_ipv4']['address'] }} as {{ router_k8s_bgp_as }};
+        graceful restart;
+        import all;
+        export filter {
+            if net ~ {{ kubernetes_cluster_cidr }} then accept;
+            if net ~ {{ kubernetes_service_cidr }} then accept;
+            reject;
+        };
+        direct;
+        gateway direct;
+}
+{% endfor %}
+{% endfor %}
