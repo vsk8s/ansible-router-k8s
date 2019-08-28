@@ -1,4 +1,15 @@
 ---
+  - name: Collect remote router facts
+    include_tasks: load_facts.yml
+    with_items: "{{ router_k8s_other_routers }}"
+    loop_control:
+      loop_var: group
+
+  - name: Collect worker facts
+    include_tasks: load_facts.yml
+    vars:
+      group: "{{ router_k8s_worker_group }}"
+
   - name: Install needed software
     become: True
     apt:
