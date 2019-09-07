@@ -1,0 +1,21 @@
+# Managed by Ansible (role: router-k8s)
+# DO NOT EDIT!
+
+frontend HTTP
+    mode tcp
+    bind {{ kubernetes_ha_ip_intern }}:80
+    default_backend k8s-apiserver
+
+frontend HTTPS
+    mode tcp
+    bind {{ kubernetes_ha_ip_intern }}:443
+    mode     tcp
+
+backend k8s-apiserver
+    mode      tcp
+    balance source
+    hash-type consistent
+    option httpchk GET /healthz HTTP/1.1\r\nHost:\ {{ kubernetes_ha_domain_intern }}
+{% for server in groups[kubernetes_ansible_master_group] %}
+    server    {{ hostvars[server]['ansible_hostname'] }}  {{ hostvars[server]['ansible_default_ipv4']['address'] }}:443 check check-ssl ca-file {{ router_k8s_apiserver_ca }}
+{% endfor %}
