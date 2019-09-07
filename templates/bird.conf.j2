@@ -35,7 +35,7 @@ protocol kernel {
 
 # Advertise self as default route
 protocol static {
-        route 0.0.0.0/0 via {{ hostvars[inventory_hostname][router_k8s_internal_inteface]['ipv4']['address'] }};
+        route 0.0.0.0/0 via {{ hostvars[inventory_hostname][router_k8s_internal_interface]['ipv4']['address'] }};
 }
 
 {% for item in groups[router_k8s_worker_group] %}
