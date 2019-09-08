@@ -1,12 +1,12 @@
 # Managed by Ansible (role: router-k8s)
 # DO NOT EDIT!
 
-frontend HTTP
+frontend HTTP-intern
     mode tcp
     bind {{ kubernetes_ha_ip_intern }}:80
     default_backend k8s-apiserver
 
-frontend HTTPS
+frontend HTTPS-intern
     mode tcp
     bind {{ kubernetes_ha_ip_intern }}:443
     mode     tcp
