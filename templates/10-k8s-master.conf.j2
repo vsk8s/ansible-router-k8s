@@ -10,6 +10,7 @@ frontend HTTPS
     mode tcp
     bind {{ kubernetes_ha_ip_intern }}:443
     mode     tcp
+    default_backend k8s-apiserver
 
 backend k8s-apiserver
     mode      tcp
