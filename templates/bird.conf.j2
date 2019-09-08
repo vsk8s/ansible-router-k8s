@@ -40,7 +40,7 @@ protocol static {
 
 {% for item in groups[router_k8s_worker_group] %}
 
-protocol bgp {{ hostvars[item]['ansible_nodename']|regex_replace('-','_') }} {
+protocol bgp {{ hostvars[item]['ansible_hostname']|regex_replace('-','_') }} {
         description "{{ hostvars[item]['ansible_default_ipv4']['address'] }}";
         local as {{ router_k8s_bgp_as }};
         neighbor {{ hostvars[item]['ansible_default_ipv4']['address'] }} as {{ router_k8s_bgp_as }};
@@ -57,7 +57,7 @@ protocol bgp {{ hostvars[item]['ansible_nodename']|regex_replace('-','_') }} {
 {% for remote_group in router_k8s_other_routers %}
 {% for item in groups[remote_group] %}
 
-protocol bgp {{ hostvars[item]['ansible_nodename']|regex_replace('-','_') }} {
+protocol bgp {{ hostvars[item]['ansible_hostname']|regex_replace('-','_') }} {
         description "{{ hostvars[item]['ansible_default_ipv4']['address'] }}";
         local as {{ router_k8s_bgp_as }};
         neighbor {{ hostvars[item]['ansible_default_ipv4']['address'] }} as {{ hostvars[item]['router_k8s_bgp_as'] }};
