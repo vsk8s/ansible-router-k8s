@@ -10,7 +10,13 @@ frontend HTTPS-intern
     mode tcp
     bind {{ kubernetes_ha_ip_intern }}:443
     mode     tcp
-    default_backend kube-apiserver
+    acl kube-apiserver req_ssl_sni -i {{ kubernetes_ha_domain_intern }}
+    use_backend kube-apiserver if kube-apiserver
+    default_backend tectonic-bridge-internal-https
+
+backend tectonic-bridge-internal-https
+    mode tcp
+    server loopback 127.0.0.1:10922 send-proxy-v2
 
 backend kube-apiserver
     mode      tcp
