@@ -8,7 +8,12 @@
   - name: Collect worker facts
     include_tasks: load_facts.yml
     vars:
-      group: "{{ router_k8s_worker_group }}"
+      group: "{{ kubernetes_ansible_worker_group }}"
+
+  - name: Collect master facts
+    include_tasks: load_facts.yml
+    vars:
+      group: "{{ kubernetes_ansible_master_group }}"
 
   - name: Configure haproxy dropin
     become: True
