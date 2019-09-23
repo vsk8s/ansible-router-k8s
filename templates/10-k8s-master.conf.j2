@@ -10,6 +10,8 @@ frontend HTTPS-intern
     mode tcp
     bind {{ kubernetes_ha_ip_intern }}:443
     mode     tcp
+    tcp-request inspect-delay 5s
+    tcp-request content accept if { req_ssl_hello_type 1 }
     acl kube-apiserver req_ssl_sni -i {{ kubernetes_ha_domain_intern }}
     use_backend kube-apiserver if kube-apiserver
     default_backend tectonic-bridge-internal-https
