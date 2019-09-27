@@ -4,11 +4,13 @@
 frontend HTTP-intern
     mode tcp
     bind {{ kubernetes_ha_ip_intern }}:80
+    bind {{ tectonic_master_ip }}:80
     default_backend kube-apiserver
 
 frontend HTTPS-intern
     mode tcp
     bind {{ kubernetes_ha_ip_intern }}:443
+    bind {{ tectonic_master_ip }}:443
     mode     tcp
     tcp-request inspect-delay 5s
     tcp-request content accept if { req_ssl_hello_type 1 }
