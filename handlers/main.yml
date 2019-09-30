@@ -1,5 +1,6 @@
 ---
   - name: restart bird
+    become: True
     service:
       name: bird
       state: restarted
