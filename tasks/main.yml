@@ -41,3 +41,7 @@
       group: root
       mode: 0644
     notify: restart bird
+
+- name: Flush handlers
+  meta: flush_handlers
+
