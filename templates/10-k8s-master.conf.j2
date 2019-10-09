@@ -12,6 +12,7 @@ frontend HTTPS-intern
     bind {{ kubernetes_ha_ip_intern }}:443
     bind {{ tectonic_master_ip }}:443
     mode     tcp
+    timeout client 180d
     tcp-request inspect-delay 5s
     tcp-request content accept if { req_ssl_hello_type 1 }
     acl kube-apiserver req_ssl_sni -i {{ kubernetes_ha_domain_intern }}
@@ -24,6 +25,7 @@ backend tectonic-bridge-internal-https
 
 backend kube-apiserver
     mode      tcp
+    timeout server 180d
     balance source
     hash-type consistent
     option httpchk GET /healthz HTTP/1.1\r\nHost:\ {{ kubernetes_ha_domain_intern }}
