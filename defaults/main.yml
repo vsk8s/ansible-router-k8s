@@ -2,6 +2,7 @@
 router_external_interfaces: []
 
 router_k8s_worker_group: "kube-worker"
+router_k8s_master_group: "kube-master"
 # remote router groups
 router_k8s_other_routers: []
 router_k8s_bgp_as: "64512"
