@@ -38,14 +38,15 @@ protocol static {
         route 0.0.0.0/0 via {{ hostvars[inventory_hostname][router_k8s_internal_interface]['ipv4']['address'] }};
 }
 
-{% for item in groups[kubernetes_ansible_worker_group] %}
+{% for cluster in router_k8s_clusters %}
+{% for item in groups[cluster.worker_group] %}
 
 protocol bgp {{ hostvars[item]['ansible_hostname']|regex_replace('-','_') }} {
         description "{{ hostvars[item]['ansible_default_ipv4']['address'] }}";
-        local as {{ router_k8s_bgp_as }};
-        neighbor {{ hostvars[item]['ansible_default_ipv4']['address'] }} as {{ router_k8s_bgp_as }};
+        local as {{ cluster.bgp_as }};
+        neighbor {{ hostvars[item]['ansible_default_ipv4']['address'] }} as {{ cluster.bgp_as }};
         rr client;
-        rr cluster id {{ kubernetes_ha_ip_intern }};
+        rr cluster id {{ cluster.ha_ip_intern }};
         graceful restart;
         import all;
         export all;
@@ -54,14 +55,14 @@ protocol bgp {{ hostvars[item]['ansible_hostname']|regex_replace('-','_') }} {
 }
 {% endfor %}
 
-{% for item in groups[kubernetes_ansible_master_group] %}
+{% for item in groups[cluster.master_group] %}
 
 protocol bgp {{ hostvars[item]['ansible_hostname']|regex_replace('-','_') }} {
         description "{{ hostvars[item]['ansible_default_ipv4']['address'] }}";
-        local as {{ router_k8s_bgp_as }};
-        neighbor {{ hostvars[item]['ansible_default_ipv4']['address'] }} as {{ router_k8s_bgp_as }};
+        local as {{ cluster.bgp_as }};
+        neighbor {{ hostvars[item]['ansible_default_ipv4']['address'] }} as {{ cluster.bgp_as }};
         rr client;
-        rr cluster id {{ kubernetes_ha_ip_intern }};
+        rr cluster id {{ cluster.ha_ip_intern }};
         graceful restart;
         import none;
         export all;
@@ -75,17 +76,18 @@ protocol bgp {{ hostvars[item]['ansible_hostname']|regex_replace('-','_') }} {
 
 protocol bgp {{ hostvars[item]['ansible_hostname']|regex_replace('-','_') }} {
         description "{{ hostvars[item]['ansible_default_ipv4']['address'] }}";
-        local as {{ router_k8s_bgp_as }};
+        local as {{ cluster.bgp_as }};
         neighbor {{ hostvars[item]['ansible_default_ipv4']['address'] }} as {{ hostvars[item]['router_k8s_bgp_as'] }};
         graceful restart;
         import all;
         export filter {
-            if net ~ {{ kubernetes_cluster_cidr }} then accept;
-            if net ~ {{ kubernetes_service_cidr }} then accept;
+            if net ~ {{ cluster.cluster_cidr }} then accept;
+            if net ~ {{ cluster.service_cidr }} then accept;
             reject;
         };
         direct;
         gateway direct;
 }
+{% endfor %}
 {% endfor %}
 {% endfor %}

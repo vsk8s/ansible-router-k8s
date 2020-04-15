@@ -8,6 +8,17 @@ router_k8s_internal_interface: ansible_eth1
 
 router_k8s_apiserver_ca: /etc/haproxy/kube-apiserver.ca.crt
 
+router_k8s_clusters:
+  - name: cluster
+    ha_ip_intern: 10.0.0.3
+    ha_domain_intern: kube-api-master-ha.vsk8s.k8s
+    master_group: kube-master
+    worker_group: kube-worker
+    apiserver_ca: /etc/haproxy/kube-apiserver.ca.cert
+    cluster_cidr: 10.0.0.0/8
+    service_cidr: 10.0.0.0/8
+    bgp_as: 64512
+
 kubernetes_ha_ip_intern: 10.0.0.3
 kubernetes_cluster_cidr: 10.0.0.0/8
 kubernetes_service_cidr: 10.0.0.0/8
