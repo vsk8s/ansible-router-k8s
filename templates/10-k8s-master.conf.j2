@@ -6,7 +6,7 @@ frontend HTTP-intern-{{ cluster.name }}
     mode tcp
     bind {{ cluster.ha_ip_intern }}:80
     bind {{ tectonic_master_ip }}:80
-    default_backend kube-apiserver
+    default_backend kube-apiserver-{{ cluster.name }}
 
 frontend HTTPS-intern-{{ cluster.name }}
     mode tcp
