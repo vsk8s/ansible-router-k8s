@@ -5,20 +5,17 @@
 frontend HTTP-intern-{{ cluster.name }}
     mode tcp
     bind {{ cluster.ha_ip_intern }}:80
-    bind {{ tectonic_master_ip }}:80
     default_backend kube-apiserver-{{ cluster.name }}
 
 frontend HTTPS-intern-{{ cluster.name }}
     mode tcp
     bind {{ cluster.ha_ip_intern }}:443
-    bind {{ tectonic_master_ip }}:443
     mode     tcp
     timeout client 2147483647
     tcp-request inspect-delay 5s
     tcp-request content accept if { req_ssl_hello_type 1 }
     acl kube-apiserver-{{ cluster.name }} req_ssl_sni -i {{ cluster.ha_domain_intern }}
     use_backend kube-apiserver-{{ cluster.name }} if kube-apiserver-{{ cluster.name }}
-    default_backend tectonic-bridge-internal-https
 
 backend kube-apiserver-{{ cluster.name }}
     mode      tcp
@@ -30,9 +27,4 @@ backend kube-apiserver-{{ cluster.name }}
     server    {{ hostvars[server]['ansible_hostname'] }}  {{ hostvars[server]['ansible_default_ipv4']['address'] }}:443 check check-ssl ca-file {{ cluster.apiserver_ca }}
 {% endfor %}
 {% endfor %}
-
-backend tectonic-bridge-internal-https
-    mode tcp
-    server loopback 127.0.0.1:10922 send-proxy-v2
-
 
