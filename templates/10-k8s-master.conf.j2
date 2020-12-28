@@ -1,25 +1,27 @@
 # Managed by Ansible (role: router-k8s)
 # DO NOT EDIT!
 
-frontend HTTP-intern
+{% for cluster in router_k8s_clusters %}
+frontend HTTP-intern-{{ cluster.name }}
     mode tcp
-    bind {{ kubernetes_ha_ip_intern }}:80
-    default_backend kube-apiserver
+    bind {{ cluster.ha_ip_intern }}:80
+    default_backend kube-apiserver-{{ cluster.name }}
 
-frontend HTTPS-intern
+frontend HTTPS-intern-{{ cluster.name }}
     mode tcp
-    bind {{ kubernetes_ha_ip_intern }}:443
-    mode     tcp
+    bind {{ cluster.ha_ip_intern }}:443
     timeout client 2147483647
-    default_backend kube-apiserver
+    default_backend kube-apiserver-{{ cluster.name }}
 
-backend kube-apiserver
+backend kube-apiserver-{{ cluster.name }}
     mode      tcp
     timeout server 2147483647
     balance source
     hash-type consistent
-    option httpchk GET /healthz HTTP/1.1\r\nHost:\ {{ kubernetes_ha_domain_intern }}
-{% for server in groups[kubernetes_ansible_master_group] %}
-    server    {{ hostvars[server]['ansible_hostname'] }}  {{ hostvars[server]['ansible_default_ipv4']['address'] }}:443 check check-ssl ca-file {{ router_k8s_apiserver_ca }}
+    option httpchk GET /healthz HTTP/1.1\r\nHost:\ {{ cluster.ha_domain_intern }}
+{% for server in groups[cluster.master_group] %}
+    server    {{ hostvars[server]['ansible_hostname'] }}  {{ hostvars[server]['ansible_default_ipv4']['address'] }}:443 check check-ssl ca-file {{ cluster.apiserver_ca }}
+{% endfor %}
 {% endfor %}
 
+{{ router_k8s_additional_lines }}
