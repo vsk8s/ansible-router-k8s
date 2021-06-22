@@ -15,5 +15,6 @@ router_k8s_clusters:
     cluster_cidr: 10.0.0.0/8
     service_cidr: 10.0.0.0/8
     bgp_as: 64512
+    http_backend: False
 
 router_k8s_additional_lines: ""

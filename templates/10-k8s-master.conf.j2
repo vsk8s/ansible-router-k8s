@@ -22,6 +22,20 @@ backend kube-apiserver-{{ cluster.name }}
 {% for server in groups[cluster.master_group] %}
     server    {{ hostvars[server]['ansible_hostname'] }}  {{ hostvars[server]['ansible_default_ipv4']['address'] }}:443 check check-ssl ca-file {{ cluster.apiserver_ca }}
 {% endfor %}
+
+{% if cluster.http_backend %}
+backend {{ cluster.name }}-https
+    mode      http
+    timeout server 2147483647
+    balance source
+    hash-type consistent
+    option httpchk GET /healthz
+    http-check expect status 200
+{% for server in groups[cluster.master_group] %}
+    server    {{ hostvars[server]['ansible_hostname'] }}  {{ hostvars[server]['ansible_default_ipv4']['address'] }}:443 ssl check check-ssl ca-file {{ cluster.apiserver_ca }}
+{% endfor %}
+{% endif %}
+
 {% endfor %}
 
 {{ router_k8s_additional_lines }}
